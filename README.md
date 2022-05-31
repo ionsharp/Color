@@ -1,6 +1,6 @@
 ﻿Color ![](https://img.shields.io/badge/style-7.1-blue.svg?style=flat&label=Version)
 ---
- <img src="https://github.com/imagin-tech/App.Color/blob/main/Images/Splash.png?raw=true"/>
+ <img src="https://github.com/imagin-tech/Color/blob/main/Images/Splash.png?raw=true"/>
 
 Languages
 ---
@@ -16,7 +16,7 @@ Blaze | Chocolate | Dark | Jungle | Light | Midnight | Violet |
 
 Wiki ![](https://img.shields.io/badge/style-Coming%20soon!-red.svg?style=flat&label=)
 ---
-For help or to find out more, head over to [the wiki](https://github.com/imagin-tech/Core/wiki).
+For help or to find out more, head over to [the wiki](https://github.com/imagin-tech/Color/wiki).
 
 Donate
 ---
