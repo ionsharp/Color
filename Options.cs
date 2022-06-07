@@ -1,6 +1,7 @@
 ﻿using Imagin.Core;
 using Imagin.Core.Collections.Serialization;
 using Imagin.Core.Controls;
+using Imagin.Core.Colors;
 using Imagin.Core.Models;
 using System;
 
@@ -22,6 +23,15 @@ namespace Imagin.Apps.Color
         {
             get => colorControlOptions;
             set => this.Change(ref colorControlOptions, value);
+        }
+
+        [NonSerialized]
+        Type defaultColorSpace = typeof(LCHabh);
+        [Hidden]
+        public Type DefaultColorSpace
+        {
+            get => defaultColorSpace ??= typeof(LCHabh);
+            set => this.Change(ref defaultColorSpace, value);
         }
 
         DocumentCollection documents = new();

@@ -1,9 +1,9 @@
 ﻿using Imagin.Core;
-using Imagin.Core.Analytics;
 using Imagin.Core.Colors;
 using Imagin.Core.Controls;
 using Imagin.Core.Input;
 using Imagin.Core.Models;
+using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -34,28 +34,30 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     public MainViewModel() : base() 
     {
-        var w = WorkingProfile.Default.sRGB;
+        //var w = WorkingProfile.Default.sRGB;
 
-        foreach (var i in ColorVector.Type)
-            ColorVector.LogAccuracy(i.Value, w);
         /*
+        foreach (var i in ColorVector.Type)
+            ColorVector.GetAccuracy(i.Value, w);
         */
         /*
         foreach (var i in ColorVector.Types)
-            ColorVector.LogRange(i.Value, w, false);
+            ColorVector.GetRange(i.Value, w, false);
         */
 
-        //New<LAB>(); New<LABh>();
-        New<HUVuv>();
-        //New<HUVab>(); New<HUVabh>(); New<HzUzVz>();
-        //New<HPLuv>(); New<HSLuv>();
-        //New<OKLab>();
-        //New<JzAzBz>(); New<JzCzHz>();
+        //New<CMY>();
+        //New<HSB>(); New<HSL>(); New<HSP>();
+        //New<HPLuv>(); //New<HSLuv>();
+        //New<Lab>(); //New<Labh>(); //New<Labj>(); 
+        New<LCHabh>(); //New<LCHabj>();
+        //New<Labk>(); //New<HSBk>(); //New<HSLk>(); //New<HWBk>();
     }
 
     //...
 
-    void New<T>() where T : ColorVector3 => NewCommand.Execute(typeof(T));
+    void New<T>() where T : ColorVector3 => New(typeof(T));
+
+    void New(Type type) => NewCommand.Execute(type);
 
     void IFrameworkReference.SetReference(IFrameworkKey key, FrameworkElement element)
     {
@@ -78,5 +80,5 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
     public ICommand ColorCommand => colorCommand ??= new RelayCommand<System.Windows.Media.Color>(i => (ActiveDocument as ColorDocument).Color.ActualColor = i, i => (ActiveDocument as ColorDocument)?.Color != null);
 
     ICommand newCommand;
-    public ICommand NewCommand => newCommand ??= new RelayCommand<System.Type>(i => Documents.Add(new ColorDocument(Colors.White, i)));
+    public ICommand NewCommand => newCommand ??= new RelayCommand(() => Documents.Add(new ColorDocument(Colors.White, Get.Current<Options>().DefaultColorSpace)));
 }

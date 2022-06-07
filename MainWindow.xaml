@@ -37,32 +37,18 @@
                 <i:Reference x:Key="MainViewModel" Data="{Binding}"/>
             </Menu.Resources>
             <MenuItem Header="{i:Loc Color}">
-                <!--
-                <MenuItem.Resources>
-                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Converter={x:Static i:IsConverter.Default}, ConverterParameter={x:Type i:ColorModels}}" Value="True">
-                                <Setter Property="Command" Value="{Binding Data.NewCommand, Source={StaticResource MainViewModel}}"/>
-                                <Setter Property="CommandParameter" Value="{Binding}"/>
-                                <Setter Property="Header" Value="{Binding Converter={x:Static i:ToStringConverter.Default}}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </MenuItem.Resources>
-                -->
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
-                        <!--
-                        <Separator i:XSeparator.Header="New"/>
-                        <CollectionContainer Collection="{i:Enumerate {x:Type i:ColorModels}}"/>
+                        <MenuItem Header="{i:Loc New}"
+                            Command="{Binding NewCommand}"
+                            Icon="{i:InternalImage Image=Plus}"/>
                         <Separator/>
-                        -->
+                        <MenuItem Header="{i:Loc Select}"
+                            Command="{Binding ActiveDocument.SelectCommand}"
+                            Icon="{i:InternalImage Image=Checkmark}"/>
                         <MenuItem Header="{i:Loc Revert}"
                             Command="{Binding ActiveDocument.RevertCommand}"
                             Icon="{i:InternalImage Image=Revert}"/>
-                        <MenuItem Header="{i:Loc Save}"
-                            Command="{Binding ActiveDocument.SaveCommand}"
-                            Icon="{i:InternalImage Image=Save}"/>
                         <Separator/>
                         <MenuItem Header="{i:Loc Close}"
                             Command="{Binding CloseCommand}"
