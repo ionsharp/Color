@@ -6,6 +6,7 @@
     i:ResxLocalizationProvider.DefaultAssembly="{i:DefaultAssemblyName}"
     i:ResxLocalizationProvider.DefaultDictionary="Main"
     xmlns:local="clr-namespace:Imagin.Apps.Color"
+    xmlns:Color="clr-namespace:Imagin.Core.Colors;assembly=Imagin.Core.Color"
     xmlns:Hardcodet="http://www.hardcodet.net/taskbar"
     Height="{i:Options WindowHeight, Mode=TwoWay}"
     i:XWindow.FooterVisibility="Collapsed"
@@ -33,15 +34,13 @@
     </i:XWindow.HeaderButtons>
     <i:XWindow.Menu>
         <Menu>
-            <Menu.Resources>
-                <i:Reference x:Key="MainViewModel" Data="{Binding}"/>
-            </Menu.Resources>
             <MenuItem Header="{i:Loc Color}">
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
                         <MenuItem Header="{i:Loc New}"
                             Command="{Binding NewCommand}"
-                            Icon="{i:InternalImage Image=Plus}"/>
+                            Icon="{i:InternalImage Image=Plus}"
+                            InputGestureText="{i:Options DefaultColorModel.Name}"/>
                         <Separator/>
                         <MenuItem Header="{i:Loc Select}"
                             Command="{Binding ActiveDocument.SelectCommand}"
@@ -67,7 +66,7 @@
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Converter={x:Static i:IsConverter.Default}, ConverterParameter={x:Type i:StringColor}}" Value="True">
-                                <Setter Property="Command" Value="{Binding Data.ColorCommand, Source={StaticResource MainViewModel}}"/>
+                                <Setter Property="Command" Value="{i:RemoteBinding ColorCommand, RemoteSource=MainViewModel}"/>
                                 <Setter Property="CommandParameter" Value="{Binding Value}"/>
                                 <Setter Property="Icon" Value="{Binding Brush}"/>
                                 <Setter Property="i:XMenuItem.IconTemplate">
@@ -101,24 +100,90 @@
                 </MenuItem.Resources>
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
-                        <Separator i:XSeparator.Header="{i:Loc Colors}"/>
-                        <CollectionContainer Collection="{i:Options ColorControlOptions.Colors}"/>
                         <Separator i:XSeparator.Header="{i:Loc Export}"/>
-                        <MenuItem Tag="*" Header="{i:Loc Export, Suffix=...}"
+                        <MenuItem Tag="0" Header="{i:Loc Export, Suffix=...}"
                             Command=""
                             Icon="{i:InternalImage Image=Export}"/>
-                        <MenuItem Tag="*" Header="{i:Loc ExportAll, Suffix=...}"
+                        <MenuItem Tag="0" Header="{i:Loc ExportAll, Suffix=...}"
                             Command=""
                             Icon="{i:InternalImage Image=ExportAll}"/>
                         <Separator i:XSeparator.Header="{i:Loc Import}"/>
-                        <MenuItem Tag="*" Header="{i:Loc Import, Suffix=...}"
+                        <MenuItem Tag="0" Header="{i:Loc Import, Suffix=...}"
                             Command=""
                             Icon="{i:InternalImage Image=Import}"/>
+                        <Separator i:XSeparator.Header="{i:Loc Colors}"/>
+                        <CollectionContainer Collection="{i:Options ColorControlOptions.Colors}"/>
+                    </CompositeCollection>
+                </MenuItem.ItemsSource>
+            </MenuItem>
+            <MenuItem Tag="0" Header="{i:Loc Models}">
+                <MenuItem.Resources>
+                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
+                        <Style.Triggers>
+                            <Trigger Property="Tag" Value="{x:Null}">
+                                <Setter Property="Command" Value="{i:RemoteBinding NewCommand, RemoteSource=MainViewModel}"/>
+                                <Setter Property="CommandParameter" Value="{Binding}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </MenuItem.Resources>
+                <MenuItem.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </MenuItem.ItemTemplate>
+                <MenuItem.ItemsSource>
+                    <CompositeCollection>
+                        <CollectionContainer Collection="{x:Static Color:ColorModel.Types}"/>
+                    </CompositeCollection>
+                </MenuItem.ItemsSource>
+            </MenuItem>
+            <MenuItem Tag="0" Header="{i:Loc Profile}">
+                <MenuItem.Resources>
+                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
+                        <Style.Triggers>
+                            <Trigger Property="Tag" Value="{x:Null}">
+                                <Setter Property="Command" Value="{i:RemoteBinding OpenProfileCommand, RemoteSource=MainViewModel}"/>
+                                <Setter Property="CommandParameter" Value="{Binding Value}"/>
+                                <Setter Property="InputGestureText" Value="{Binding}"/>
+                                <Setter Property="i:XMenuItem.InputGestureTextTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <i:ImageButton
+                                                Command="{i:RemoteBinding DeleteProfileCommand, RemoteSource=MainViewModel}"
+                                                CommandParameter="{Binding}"
+                                                Source="{i:InternalImage Image=Trash}"
+                                                ToolTip="{i:Loc Delete}"/>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </MenuItem.Resources>
+                <MenuItem.ItemsSource>
+                    <CompositeCollection>
+                        <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
+                            Command="{Binding NewProfileCommand}"
+                            Icon="{i:InternalImage Image=Plus}"/>
+                        <Separator i:XSeparator.Header="{i:Loc Export}"/>
+                        <MenuItem Tag="0" Header="{i:Loc Export, Suffix=...}"
+                            Command=""
+                            Icon="{i:InternalImage Image=Export}"/>
+                        <MenuItem Tag="0" Header="{i:Loc ExportAll, Suffix=...}"
+                            Command=""
+                            Icon="{i:InternalImage Image=ExportAll}"/>
+                        <Separator i:XSeparator.Header="{i:Loc Import}"/>
+                        <MenuItem Tag="0" Header="{i:Loc Import, Suffix=...}"
+                            Command=""
+                            Icon="{i:InternalImage Image=Import}"/>
+                        <Separator i:XSeparator.Header="{i:Loc Profiles}"/>
+                        <CollectionContainer Collection="{i:Options ColorControlOptions.Profiles}"/>
                     </CompositeCollection>
                 </MenuItem.ItemsSource>
             </MenuItem>
             <MenuItem Header="{i:Loc Window}" 
-                ItemsSource="{Binding Data.Panels, Source={StaticResource MainViewModel}}">
+                ItemsSource="{i:RemoteBinding Panels, RemoteSource=MainViewModel}">
                 <MenuItem.ItemContainerStyle>
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Setter Property="Icon" Value="{Binding Icon}"/>

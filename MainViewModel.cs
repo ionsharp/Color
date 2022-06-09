@@ -2,6 +2,7 @@
 using Imagin.Core.Colors;
 using Imagin.Core.Controls;
 using Imagin.Core.Input;
+using Imagin.Core.Linq;
 using Imagin.Core.Models;
 using System;
 using System.Windows;
@@ -14,8 +15,8 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 {
     public static readonly ReferenceKey<ColorControl> ColorControlReferenceKey = new();
 
-    Document activeDocument = null;
-    public Document ActiveDocument
+    ColorDocument activeDocument = null;
+    public ColorDocument ActiveDocument
     {
         get => activeDocument;
         set => this.Change(ref activeDocument, value);
@@ -69,16 +70,47 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
             Panels.Add(new ThemePanel());
         }
     }
-
+    
     ICommand closeCommand;
-    public ICommand CloseCommand => closeCommand ??= new RelayCommand(() => Documents.Remove(ActiveDocument), () => ActiveDocument != null);
+    public ICommand CloseCommand 
+        => closeCommand ??= new RelayCommand(() => Documents.Remove(ActiveDocument), () => ActiveDocument != null);
 
     ICommand closeAllCommand;
-    public ICommand CloseAllCommand => closeAllCommand ??= new RelayCommand(() => Documents.Clear(), () => Documents.Count > 0);
+    public ICommand CloseAllCommand 
+        => closeAllCommand ??= new RelayCommand(() => Documents.Clear(), () => Documents.Count > 0);
 
     ICommand colorCommand;
-    public ICommand ColorCommand => colorCommand ??= new RelayCommand<System.Windows.Media.Color>(i => (ActiveDocument as ColorDocument).Color.ActualColor = i, i => (ActiveDocument as ColorDocument)?.Color != null);
+    public ICommand ColorCommand 
+        => colorCommand ??= new RelayCommand<System.Windows.Media.Color>(i => (ActiveDocument as ColorDocument).Color.ActualColor = i, i => (ActiveDocument as ColorDocument)?.Color != null);
 
     ICommand newCommand;
-    public ICommand NewCommand => newCommand ??= new RelayCommand(() => Documents.Add(new ColorDocument(Colors.White, Get.Current<Options>().DefaultColorSpace)));
+    public ICommand NewCommand 
+        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel)));
+
+    ICommand deleteProfileCommand;
+    public ICommand DeleteProfileCommand 
+        => deleteProfileCommand ??= new RelayCommand<Namable<WorkingProfile>>(i => Get.Current<Options>().ColorControlOptions.Profiles.Remove(i), i => i != null);
+
+    ICommand openProfileCommand;
+    public ICommand OpenProfileCommand => openProfileCommand ??= new RelayCommand<WorkingProfile>(i =>
+    {
+        ActiveDocument.Color.PrimaryBlue = i.Primary.B;
+        ActiveDocument.Color.PrimaryGreen = i.Primary.G;
+        ActiveDocument.Color.PrimaryRed = i.Primary.R;
+        ActiveDocument.Color.Transfer = i.Transfer;
+        ActiveDocument.Color.White = Illuminant.GetChroma3(i.White).XY;
+    },
+    i => ActiveDocument != null);
+
+    ICommand newProfileCommand;
+    public ICommand NewProfileCommand => newProfileCommand ??= new RelayCommand(() =>
+    {
+        var window = new InputWindow("New profile", "Untitled", "Profile name");
+        if (window.ShowDialog() == true)
+        {
+            var profiles = Get.Current<Options>().ColorControlOptions.Profiles;
+            profiles.Add(new(window.Input, ActiveDocument.Color.Profile));
+        }
+    },
+    () => ActiveDocument != null);
 }

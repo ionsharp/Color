@@ -1,9 +1,10 @@
 ﻿using Imagin.Core;
 using Imagin.Core.Collections.Serialization;
-using Imagin.Core.Controls;
 using Imagin.Core.Colors;
+using Imagin.Core.Controls;
 using Imagin.Core.Models;
 using System;
+using System.Collections.ObjectModel;
 
 namespace Imagin.Apps.Color
 {
@@ -15,6 +16,9 @@ namespace Imagin.Apps.Color
 
         [Hidden]
         IGroupWriter IColorControlOptions.Colors => ColorControlOptions.Colors;
+
+        [Hidden]
+        ObservableCollection<Namable<WorkingProfile>> IColorControlOptions.Profiles => ColorControlOptions.Profiles;
 
         ColorControlOptions colorControlOptions = new();
         [Category(nameof(ColorControl))]
@@ -28,7 +32,7 @@ namespace Imagin.Apps.Color
         [NonSerialized]
         Type defaultColorSpace = typeof(LCHabh);
         [Hidden]
-        public Type DefaultColorSpace
+        public Type DefaultColorModel
         {
             get => defaultColorSpace ??= typeof(LCHabh);
             set => this.Change(ref defaultColorSpace, value);
