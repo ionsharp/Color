@@ -1,4 +1,4 @@
-﻿Color ![](https://img.shields.io/badge/style-7.1-blue.svg?style=flat&label=Version)
+﻿﻿Color ![](https://img.shields.io/badge/style-7.1-blue.svg?style=flat&label=Version)
 ---
  <img src="https://github.com/imagin-tech/Color/blob/main/Images/Splash.png?raw=true"/>
 

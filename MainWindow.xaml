@@ -134,7 +134,7 @@
                 </MenuItem.ItemTemplate>
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
-                        <CollectionContainer Collection="{x:Static Color:ColorModel.Types}"/>
+                        <CollectionContainer Collection="{x:Static Color:Colour.Types}"/>
                     </CompositeCollection>
                 </MenuItem.ItemsSource>
             </MenuItem>

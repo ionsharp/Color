@@ -2,7 +2,6 @@
 using Imagin.Core.Colors;
 using Imagin.Core.Controls;
 using Imagin.Core.Input;
-using Imagin.Core.Linq;
 using Imagin.Core.Models;
 using System;
 using System.Windows;
@@ -13,6 +12,8 @@ namespace Imagin.Apps.Color;
 
 public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 {
+    #region Properties
+
     public static readonly ReferenceKey<ColorControl> ColorControlReferenceKey = new();
 
     ColorDocument activeDocument = null;
@@ -31,32 +32,32 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
         private set => this.Change(ref panels, value);
     }
 
-    //...
+    #endregion
+
+    #region MainViewModel
 
     public MainViewModel() : base() 
     {
-        //var w = WorkingProfile.Default.sRGB;
+        var profile = WorkingProfile.Default;
 
-        /*
-        foreach (var i in ColorVector.Type)
-            ColorVector.GetAccuracy(i.Value, w);
-        */
-        /*
-        foreach (var i in ColorVector.Types)
-            ColorVector.GetRange(i.Value, w, false);
-        */
+        //Colour.Analysis.LogAllAccuracy(profile, 10, 3, false);
+        //Colour.Analysis.LogAllRange(profile);
 
         //New<CMY>();
-        //New<HSB>(); New<HSL>(); New<HSP>();
+        //New<HSM>(); //New<HSB>(); //New<HSL>(); //New<HSP>();
         //New<HPLuv>(); //New<HSLuv>();
         //New<Lab>(); //New<Labh>(); //New<Labj>(); 
-        New<LCHabh>(); //New<LCHabj>();
+        //New<LCHxy>(); //New<LCHab>(); //New<LCHabh>(); //New<LCHabj>();
         //New<Labk>(); //New<HSBk>(); //New<HSLk>(); //New<HWBk>();
+        //New<RYB>();
+        New<RGBW>(); //New<CMYK>();
     }
 
-    //...
+    #endregion
 
-    void New<T>() where T : ColorVector3 => New(typeof(T));
+    #region Methods
+
+    void New<T>() where T : ColorModel => New(typeof(T));
 
     void New(Type type) => NewCommand.Execute(type);
 
@@ -70,7 +71,11 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
             Panels.Add(new ThemePanel());
         }
     }
-    
+
+    #endregion
+
+    #region Commands
+
     ICommand closeCommand;
     public ICommand CloseCommand 
         => closeCommand ??= new RelayCommand(() => Documents.Remove(ActiveDocument), () => ActiveDocument != null);
@@ -85,7 +90,7 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     ICommand newCommand;
     public ICommand NewCommand 
-        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel)));
+        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel, Get.Current<Options>().ColorControlOptions)));
 
     ICommand deleteProfileCommand;
     public ICommand DeleteProfileCommand 
@@ -94,11 +99,9 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
     ICommand openProfileCommand;
     public ICommand OpenProfileCommand => openProfileCommand ??= new RelayCommand<WorkingProfile>(i =>
     {
-        ActiveDocument.Color.PrimaryBlue = i.Primary.B;
-        ActiveDocument.Color.PrimaryGreen = i.Primary.G;
-        ActiveDocument.Color.PrimaryRed = i.Primary.R;
-        ActiveDocument.Color.Transfer = i.Transfer;
-        ActiveDocument.Color.White = Illuminant.GetChroma3(i.White).XY;
+        ActiveDocument.Color.Chromacity = i.Chromacity;
+        ActiveDocument.Color.Compress = i.Compress;
+        ActiveDocument.Color.Primary = i.Primary;
     },
     i => ActiveDocument != null);
 
@@ -113,4 +116,6 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
         }
     },
     () => ActiveDocument != null);
+
+    #endregion
 }

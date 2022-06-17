@@ -2,6 +2,7 @@
 using Imagin.Core.Collections.Serialization;
 using Imagin.Core.Colors;
 using Imagin.Core.Controls;
+using Imagin.Core.Data;
 using Imagin.Core.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -11,7 +12,10 @@ namespace Imagin.Apps.Color
     [Serializable]
     public class Options : MainViewOptions, IColorControlOptions
     {
-        [Hidden]
+        enum Category { Component, Layouts, Window }
+
+        [Category(Category.Layouts)]
+        [DisplayName("Auto save")]
         public bool AutoSaveLayout => ColorControlOptions.AutoSaveLayout;
 
         [Hidden]
@@ -21,21 +25,44 @@ namespace Imagin.Apps.Color
         ObservableCollection<Namable<WorkingProfile>> IColorControlOptions.Profiles => ColorControlOptions.Profiles;
 
         ColorControlOptions colorControlOptions = new();
-        [Category(nameof(ColorControl))]
-        [DisplayName("Options")]
+        [Hidden]
         public ColorControlOptions ColorControlOptions
         {
             get => colorControlOptions;
             set => this.Change(ref colorControlOptions, value);
         }
 
+        [Category(Category.Component)]
+        [DisplayName("Normalize")]
+        public bool ComponentNormalize
+        {
+            get => ColorControlOptions.ComponentNormalize;
+            set
+            {
+                ColorControlOptions.ComponentNormalize = value;
+                this.Changed(() => ComponentNormalize);
+            }
+        }
+
+        [Category(Category.Component)]
+        [DisplayName("Precision")]
+        public int ComponentPrecision
+        {
+            get => ColorControlOptions.ComponentPrecision;
+            set
+            {
+                ColorControlOptions.ComponentPrecision = value;
+                this.Changed(() => ComponentPrecision);
+            }
+        }
+
         [NonSerialized]
-        Type defaultColorSpace = typeof(LCHabh);
+        Type defaultColorModel = typeof(LCHabh);
         [Hidden]
         public Type DefaultColorModel
         {
-            get => defaultColorSpace ??= typeof(LCHabh);
-            set => this.Change(ref defaultColorSpace, value);
+            get => defaultColorModel ??= typeof(LCHabh);
+            set => this.Change(ref defaultColorModel, value);
         }
 
         DocumentCollection documents = new();
@@ -46,8 +73,12 @@ namespace Imagin.Apps.Color
             set => this.Change(ref documents, value);
         }
 
-        [Hidden]
+        [Category(Category.Layouts)]
+        [DisplayName("Layout")]
         public Layouts Layouts => ColorControlOptions.Layouts;
+
+        [Category(Category.Window)]
+        public PanelCollection Panels => ColorControlOptions.Panels;
 
         //...
 
