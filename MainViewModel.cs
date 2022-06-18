@@ -4,6 +4,7 @@ using Imagin.Core.Controls;
 using Imagin.Core.Input;
 using Imagin.Core.Models;
 using System;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -36,26 +37,41 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     #region MainViewModel
 
-    public MainViewModel() : base() 
+    public MainViewModel() : base()
     {
-        var profile = WorkingProfile.Default;
+        Documents.CollectionChanged += OnDocumentsChanged;
 
+        var profile = WorkingProfile.Default;
         //Colour.Analysis.LogAllAccuracy(profile, 10, 3, false);
         //Colour.Analysis.LogAllRange(profile);
 
+        New<RCA>(); //New<RGB>(); //New<RGV>(); //New<RYB>();
         //New<CMY>();
         //New<HSM>(); //New<HSB>(); //New<HSL>(); //New<HSP>();
         //New<HPLuv>(); //New<HSLuv>();
-        //New<Lab>(); //New<Labh>(); //New<Labj>(); 
+        //New<Lab>(); //New<Labh>(); //New<Labi>(); //New<Labj>(); 
         //New<LCHxy>(); //New<LCHab>(); //New<LCHabh>(); //New<LCHabj>();
         //New<Labk>(); //New<HSBk>(); //New<HSLk>(); //New<HWBk>();
-        //New<RYB>();
-        New<RGBW>(); //New<CMYK>();
+        //New<CMYK>(); //New<CMYW>(); //New<RGBK>(); //New<RGBW>();
     }
 
     #endregion
 
     #region Methods
+
+    void OnDocumentsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                ((Document)e.NewItems[0]).Subscribe();
+                break;
+
+            case NotifyCollectionChangedAction.Remove:
+                ((Document)e.OldItems[0]).Unsubscribe();
+                break;
+        }
+    }
 
     void New<T>() where T : ColorModel => New(typeof(T));
 
