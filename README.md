@@ -1,6 +1,6 @@
 ﻿﻿Color ![](https://img.shields.io/badge/style-7.1-blue.svg?style=flat&label=Version)
 ---
- <img src="https://github.com/imagin-code/Color/blob/main/Images/Splash.png?raw=true"/>
+ <img src="https://github.com/imagin-code/Color/blob/main/Images/Splash-Large.png?raw=true"/>
  
  1D        | 2D       | 3D      |
 -----------|----------|---------|
