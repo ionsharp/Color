@@ -2,11 +2,10 @@
 ---
  <img src="https://github.com/imagin-code/Color/blob/main/Images/Splash-Large.png?raw=true"/>
  
- 1D        | 2D       | 3D      |
------------|----------|---------|
-<img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-1D.png?raw=true" />				| <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-2D.png?raw=true" />		| <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-3D.png?raw=true" />	|
-<img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-1D-Circle.png?raw=true" />		| <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-2D-Circle.png?raw=true" /> | \-																										|
-<img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-1D-Circle-16.png?raw=true" />	| <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-2D-16.png?raw=true" />		| <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-3D-16.png?raw=true" /> |
+ Shape     | 1D        | 2D       | 3D      |
+-----------|-----------|----------|---------|
+Square | <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-1D.png?raw=true" />				| <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-2D.png?raw=true" />		| <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-3D.png?raw=true" />		|
+Circle | <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-1D-Circle.png?raw=true" />		| <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-2D-Circle.png?raw=true" /> | <img src="https://github.com/imagin-code/Color/blob/main/Images/Screen-3D-Blank.png?raw=true" />	|
  
 Models
 ---
