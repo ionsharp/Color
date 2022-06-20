@@ -23,9 +23,9 @@ Models
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/HSP.png?raw=true" width="128" />	| **HSP**							<p>*Hue, Saturation, Brightness*</p>				| 							| 		| 99.815	|
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/HWB.png?raw=true" width="128" />	| **HWB**							<p>*Hue, Whitness, Blackness*</p>					| [Alvy Ray Smith](https://en.wikipedia.org/wiki/Alvy_Ray_Smith) | 1996 | 76.778 |
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/IPT.png?raw=true" width="128" />	| **IPT**							<p>*Intensity, Cyan/red, Blue/yellow*</p>			| Ebner/Fairchild			| 1998 | 74.537 |
-<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/JCh.png?raw=true" width="128" />	| **JCh**							<p>*Lightness, Chroma, Hue*</p>						| [CIE](https://cie.co.at/) | 2002	| -			|
-<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/JMh.png?raw=true" width="128" />	| **JMh**							<p>*Lightness, Colorfulness, Hue*</p>				| [CIE](https://cie.co.at/) | 2002	| -			|
-<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/Jsh.png?raw=true" width="128" />	| **Jsh**							<p>*Lightness, Saturation, Hue*</p>					| [CIE](https://cie.co.at/) | 2002	| -			|
+<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/JCh.png?raw=true" width="128" />	| **JCh** (CAM02)					<p>*Lightness, Chroma, Hue*</p>						| [CIE](https://cie.co.at/) | 2002	| -			|
+<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/JMh.png?raw=true" width="128" />	| **JMh** (CAM02)					<p>*Lightness, Colorfulness, Hue*</p>				| [CIE](https://cie.co.at/) | 2002	| -			|
+<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/Jsh.png?raw=true" width="128" />	| **Jsh** (CAM02)					<p>*Lightness, Saturation, Hue*</p>					| [CIE](https://cie.co.at/) | 2002	| -			|
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/JPEG.png?raw=true" width="128" />	| **JPEG**							<p>*Luminance, C<sub>b</sub>, C<sub>r</sub>*</p>	| -							| -		| 100		|
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/Lab.png?raw=true" width="128" />	| **L\*a\*b\***	<p>*Luminance, Chroma<sup>a</sup>, Chroma<sup>b</sup>*</p>				| [CIE](https://cie.co.at/)	| 1976	| 100		|
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/Labh.png?raw=true" width="128" />	| **Lab<sub>h</sub>** (Hunter Lab)	<p>*Luminance, Chroma<sup>a</sup>, Chroma<sup>b</sup>*</p>			| [Richard S. Hunter](https://en.wikipedia.org/wiki/Richard_S._Hunter) | 1948 | 100 |
@@ -43,9 +43,9 @@ Models
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/LCHxy.png?raw=true" width="128" />	| **LCH<sub>xy</sub>**				<p>*Luminance, Chroma, Hue*</p>						| -							| -		| 100		|
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/LMS.png?raw=true" width="128" />	| **LMS**							<p>*Long, Medium, Short*</p>						| Stockman/Sharpe			| 2000 | 100 |
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/Luv.png?raw=true" width="128" />	| **L\*u\*v\***						<p>*Luminance, Chroma<sup>u</sup>, Chroma<sup>v</sup>*</p>			| [CIE](https://cie.co.at/) | 1976	| 67.628	|
-<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/QCh.png?raw=true" width="128" />	| **QCh**							<p>*Brightness, Chroma, Hue*</p>					| [CIE](https://cie.co.at/) | 2002	| -			|
-<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/QMh.png?raw=true" width="128" />	| **QMh**							<p>*Brightness, Colorfulness, Hue*</p>				| [CIE](https://cie.co.at/) | 2002	| -			|
-<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/Qsh.png?raw=true" width="128" />	| **Qsh**							<p>*Brightness, Saturation, Hue*</p>				| [CIE](https://cie.co.at/) | 2002	| -			|
+<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/QCh.png?raw=true" width="128" />	| **QCh** (CAM02)					<p>*Brightness, Chroma, Hue*</p>					| [CIE](https://cie.co.at/) | 2002	| -			|
+<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/QMh.png?raw=true" width="128" />	| **QMh** (CAM02)					<p>*Brightness, Colorfulness, Hue*</p>				| [CIE](https://cie.co.at/) | 2002	| -			|
+<img src="https://github.com/imagin-code/Core.Color/blob/main/Images/Qsh.png?raw=true" width="128" />	| **Qsh** (CAM02)					<p>*Brightness, Saturation, Hue*</p>				| [CIE](https://cie.co.at/) | 2002	| -			|
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/RCA.png?raw=true" width="128" />	| **RCA**							<p>*Rose, Chartreuse, Azure*</p>					| Imagin					| 2022	| -			|
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/RGB.png?raw=true" width="128" />	| **RGB**							<p>*Red, Green, Blue*</p>							| [CIE](https://cie.co.at/)	| 1931	| 100		|
 <img src="https://github.com/imagin-code/Core.Color/blob/main/Images/RGV.png?raw=true" width="128" />	| **RGV**							<p>*Orange, Spring green, Violet*</p>				| Imagin					| 2022	| -			|
