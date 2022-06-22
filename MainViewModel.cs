@@ -1,11 +1,14 @@
 ﻿using Imagin.Core;
+using Imagin.Core.Collections.ObjectModel;
 using Imagin.Core.Colors;
 using Imagin.Core.Controls;
 using Imagin.Core.Input;
+using Imagin.Core.Media;
 using Imagin.Core.Models;
 using System;
 using System.Collections.Specialized;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -26,6 +29,13 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     public DocumentCollection Documents => Get.Current<Options>().Documents;
 
+    ListCollectionView models = ColorControl.GetModels();
+    public ListCollectionView Models
+    {
+        get => models;
+        private set => models = value;
+    }
+
     PanelCollection panels = null;
     public PanelCollection Panels
     {
@@ -41,9 +51,7 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
     {
         Documents.CollectionChanged += OnDocumentsChanged;
 
-        var profile = WorkingProfile.Default;
-        //Colour.Analysis.LogAllAccuracy(profile, 10, 3, false);
-        //Colour.Analysis.LogAllRange(profile);
+        //...
 
         New<RCA>(); //New<RGB>(); //New<RGV>(); //New<RYB>();
         //New<CMY>();
@@ -106,7 +114,7 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     ICommand newCommand;
     public ICommand NewCommand 
-        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel, Get.Current<Options>().ColorControlOptions)));
+        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel?.Value ?? typeof(LCHabh), Get.Current<Options>().ColorControlOptions)));
 
     ICommand deleteProfileCommand;
     public ICommand DeleteProfileCommand 
@@ -120,16 +128,30 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
         ActiveDocument.Color.Primary = i.Primary;
     },
     i => ActiveDocument != null);
+    
+    ICommand newColorCommand;
+    public ICommand NewColorCommand => newColorCommand ??= new RelayCommand(() =>
+    {
+        var colors = MemberWindow.ShowDialog("New colors", new GroupCollection<StringColor>("Untitled colors"), out int result, i =>
+        {
+            i.GroupName = MemberGroupName.None; i.HeaderVisibility = Visibility.Collapsed;
+        },
+        Buttons.SaveCancel);
+        if (result == 0)
+            Get.Current<Options>().ColorControlOptions.Colors.Add(colors);
+    },
+    () => true);
 
     ICommand newProfileCommand;
     public ICommand NewProfileCommand => newProfileCommand ??= new RelayCommand(() =>
     {
-        var window = new InputWindow("New profile", "Untitled", "Profile name");
-        if (window.ShowDialog() == true)
+        var profile = MemberWindow.ShowDialog("New profile", new NamableProfile("Untitled profile", WorkingProfile.Default), out int result, i =>
         {
-            var profiles = Get.Current<Options>().ColorControlOptions.Profiles;
-            profiles.Add(new(window.Input, ActiveDocument.Color.Profile));
-        }
+            i.GroupName = MemberGroupName.None; i.HeaderVisibility = Visibility.Collapsed; i.NameColumnVisibility = Visibility.Collapsed;
+        },
+        Buttons.SaveCancel);
+        if (result == 0)
+            Get.Current<Options>().ColorControlOptions.Profiles.Add(profile);
     },
     () => ActiveDocument != null);
 

@@ -6,7 +6,6 @@
     i:ResxLocalizationProvider.DefaultAssembly="{i:DefaultAssemblyName}"
     i:ResxLocalizationProvider.DefaultDictionary="Main"
     xmlns:local="clr-namespace:Imagin.Apps.Color"
-    xmlns:Color="clr-namespace:Imagin.Core.Colors;assembly=Imagin.Core.Color"
     xmlns:Hardcodet="http://www.hardcodet.net/taskbar"
     Height="{i:Options WindowHeight, Mode=TwoWay}"
     i:XWindow.FooterVisibility="Collapsed"
@@ -40,14 +39,52 @@
                         <MenuItem Header="{i:Loc New}"
                             Command="{Binding NewCommand}"
                             Icon="{i:InternalImage Image=Plus}"
-                            InputGestureText="{i:Options DefaultColorModel.Name}"/>
+                            InputGestureText="{x:Null}">
+                            <i:XMenuItem.InputGestureTextTemplate>
+                                <DataTemplate>
+                                    <ComboBox
+                                        i:XItemsControl.GroupsItself="True"
+                                        ItemsSource="{i:RemoteBinding Models, RemoteSource=MainViewModel}"
+                                        SelectedItem="{i:Options DefaultColorModel, Mode=TwoWay}">
+                                        <i:XItemsControl.GroupStyle>
+                                            <GroupStyle ContainerStyle="{StaticResource {x:Type GroupItem}}">
+                                                <GroupStyle.Panel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel/>
+                                                    </ItemsPanelTemplate>
+                                                </GroupStyle.Panel>
+                                            </GroupStyle>
+                                        </i:XItemsControl.GroupStyle>
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </DataTemplate>
+                            </i:XMenuItem.InputGestureTextTemplate>
+                        </MenuItem>
                         <Separator/>
                         <MenuItem Header="{i:Loc Select}"
                             Command="{Binding ActiveDocument.SelectCommand}"
-                            Icon="{i:InternalImage Image=Checkmark}"/>
-                        <MenuItem Header="{i:Loc Revert}"
+                            Icon="{i:RemoteBinding ActiveDocument, RemoteSource=MainViewModel}"
+                            StaysOpenOnClick="True">
+                            <i:XMenuItem.IconTemplate>
+                                <DataTemplate>
+                                    <Ellipse Stroke="Black" StrokeThickness="1" Fill="{Binding Color.ActualColor, Converter={x:Static i:ColorToSolidColorBrushConverter.Default}}" Height="16" Width="16"/>
+                                </DataTemplate>
+                            </i:XMenuItem.IconTemplate>
+                        </MenuItem>
+                        <MenuItem Header="{i:Loc Switch}"
                             Command="{Binding ActiveDocument.RevertCommand}"
-                            Icon="{i:InternalImage Image=Revert}"/>
+                            Icon="{i:RemoteBinding ActiveDocument, RemoteSource=MainViewModel}"
+                            StaysOpenOnClick="True">
+                            <i:XMenuItem.IconTemplate>
+                                <DataTemplate>
+                                    <Ellipse Stroke="Black" StrokeThickness="1" Fill="{Binding OldColor, Converter={x:Static i:ColorToSolidColorBrushConverter.Default}}" Height="16" Width="16"/>
+                                </DataTemplate>
+                            </i:XMenuItem.IconTemplate>
+                        </MenuItem>
                         <Separator/>
                         <MenuItem Header="{i:Loc Close}"
                             Command="{Binding CloseCommand}"
@@ -100,43 +137,32 @@
                 </MenuItem.Resources>
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
-                        <Separator i:XSeparator.Header="{i:Loc Export}"/>
-                        <MenuItem Tag="0" Header="{i:Loc Export, Suffix=...}"
-                            Command=""
-                            Icon="{i:InternalImage Image=Export}"/>
+                        <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
+                            Command="{Binding NewColorCommand}"
+                            Icon="{i:InternalImage Image=Plus}"/>
+                        <Separator/>
                         <MenuItem Tag="0" Header="{i:Loc ExportAll, Suffix=...}"
-                            Command=""
+                            Command="{i:Options ColorControlOptions.Colors.ExportAllCommand}"
                             Icon="{i:InternalImage Image=ExportAll}"/>
-                        <Separator i:XSeparator.Header="{i:Loc Import}"/>
                         <MenuItem Tag="0" Header="{i:Loc Import, Suffix=...}"
-                            Command=""
+                            Command="{i:Options ColorControlOptions.Colors.ImportCommand}"
                             Icon="{i:InternalImage Image=Import}"/>
                         <Separator i:XSeparator.Header="{i:Loc Colors}"/>
                         <CollectionContainer Collection="{i:Options ColorControlOptions.Colors}"/>
                     </CompositeCollection>
                 </MenuItem.ItemsSource>
             </MenuItem>
-            <MenuItem Tag="0" Header="{i:Loc Models}">
-                <MenuItem.Resources>
-                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
-                        <Style.Triggers>
-                            <Trigger Property="Tag" Value="{x:Null}">
-                                <Setter Property="Command" Value="{i:RemoteBinding NewCommand, RemoteSource=MainViewModel}"/>
-                                <Setter Property="CommandParameter" Value="{Binding}"/>
-                            </Trigger>
-                        </Style.Triggers>
+            <MenuItem Header="{i:Loc Models}" 
+                ItemsSource="{Binding Models}"
+                i:XItemsControl.GroupsItself="True"
+                i:XItemsControl.GroupStyle="{StaticResource {x:Static i:XItemsControl.MenuGroupStyleKey}}">
+                <i:XItemsControl.GroupContainerStyle>
+                    <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                        <Setter Property="Command" Value="{i:RemoteBinding NewCommand, RemoteSource=MainViewModel}"/>
+                        <Setter Property="CommandParameter" Value="{Binding Value}"/>
+                        <Setter Property="Header" Value="{Binding Name}"/>
                     </Style>
-                </MenuItem.Resources>
-                <MenuItem.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}"/>
-                    </DataTemplate>
-                </MenuItem.ItemTemplate>
-                <MenuItem.ItemsSource>
-                    <CompositeCollection>
-                        <CollectionContainer Collection="{x:Static Color:Colour.Types}"/>
-                    </CompositeCollection>
-                </MenuItem.ItemsSource>
+                </i:XItemsControl.GroupContainerStyle>
             </MenuItem>
             <MenuItem Tag="0" Header="{i:Loc Profile}">
                 <MenuItem.Resources>
@@ -166,16 +192,12 @@
                         <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
                             Command="{Binding NewProfileCommand}"
                             Icon="{i:InternalImage Image=Plus}"/>
-                        <Separator i:XSeparator.Header="{i:Loc Export}"/>
-                        <MenuItem Tag="0" Header="{i:Loc Export, Suffix=...}"
-                            Command=""
-                            Icon="{i:InternalImage Image=Export}"/>
+                        <Separator/>
                         <MenuItem Tag="0" Header="{i:Loc ExportAll, Suffix=...}"
-                            Command=""
+                            Command="{i:Options ColorControlOptions.Colors.ExportAllCommand}"
                             Icon="{i:InternalImage Image=ExportAll}"/>
-                        <Separator i:XSeparator.Header="{i:Loc Import}"/>
                         <MenuItem Tag="0" Header="{i:Loc Import, Suffix=...}"
-                            Command=""
+                            Command="{i:Options ColorControlOptions.Colors.ImportCommand}"
                             Icon="{i:InternalImage Image=Import}"/>
                         <Separator i:XSeparator.Header="{i:Loc Profiles}"/>
                         <CollectionContainer Collection="{i:Options ColorControlOptions.Profiles}"/>
