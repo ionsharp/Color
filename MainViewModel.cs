@@ -27,6 +27,13 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
         set => this.Change(ref activeDocument, value);
     }
 
+    ColorControl colorControl = null;
+    public ColorControl ColorControl
+    {
+        get => colorControl;
+        private set => this.Change(ref colorControl, value);
+    }
+
     public DocumentCollection Documents => Get.Current<Options>().Documents;
 
     ListCollectionView models = ColorControl.GetModels();
@@ -89,10 +96,11 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
     {
         if (key == ColorControlReferenceKey)
         {
-            Panels = (element as ColorControl).Panels;
+            ColorControl = element as ColorControl;
+            
+            Panels = ColorControl.Panels;
             Panels.Add(new LogPanel(Get.Current<App>().Log));
             Panels.Add(new NotificationsPanel(Get.Current<App>().Notifications));
-            Panels.Add(new ThemePanel());
         }
     }
 
@@ -116,44 +124,9 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
     public ICommand NewCommand 
         => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel?.Value ?? typeof(LCHabh), Get.Current<Options>().ColorControlOptions)));
 
-    ICommand deleteProfileCommand;
-    public ICommand DeleteProfileCommand 
-        => deleteProfileCommand ??= new RelayCommand<Namable<WorkingProfile>>(i => Get.Current<Options>().ColorControlOptions.Profiles.Remove(i), i => i != null);
-
     ICommand openProfileCommand;
-    public ICommand OpenProfileCommand => openProfileCommand ??= new RelayCommand<WorkingProfile>(i =>
-    {
-        ActiveDocument.Color.Chromacity = i.Chromacity;
-        ActiveDocument.Color.Compress = i.Compress;
-        ActiveDocument.Color.Primary = i.Primary;
-    },
-    i => ActiveDocument != null);
-    
-    ICommand newColorCommand;
-    public ICommand NewColorCommand => newColorCommand ??= new RelayCommand(() =>
-    {
-        var colors = MemberWindow.ShowDialog("New colors", new GroupCollection<StringColor>("Untitled colors"), out int result, i =>
-        {
-            i.GroupName = MemberGroupName.None; i.HeaderVisibility = Visibility.Collapsed;
-        },
-        Buttons.SaveCancel);
-        if (result == 0)
-            Get.Current<Options>().ColorControlOptions.Colors.Add(colors);
-    },
-    () => true);
-
-    ICommand newProfileCommand;
-    public ICommand NewProfileCommand => newProfileCommand ??= new RelayCommand(() =>
-    {
-        var profile = MemberWindow.ShowDialog("New profile", new NamableProfile("Untitled profile", WorkingProfile.Default), out int result, i =>
-        {
-            i.GroupName = MemberGroupName.None; i.HeaderVisibility = Visibility.Collapsed; i.NameColumnVisibility = Visibility.Collapsed;
-        },
-        Buttons.SaveCancel);
-        if (result == 0)
-            Get.Current<Options>().ColorControlOptions.Profiles.Add(profile);
-    },
-    () => ActiveDocument != null);
+    public ICommand OpenProfileCommand 
+        => openProfileCommand ??= new RelayCommand<WorkingProfile>(i => { }, i => ActiveDocument != null);
 
     #endregion
 }

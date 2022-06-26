@@ -1,19 +1,13 @@
 ﻿<i:MainWindow x:Class="Imagin.Apps.Color.MainWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:i="http://imagin.tech/imagin/wpf"
-    i:LocalizeDictionary.DesignCulture="en"
-    i:ResxLocalizationProvider.DefaultAssembly="{i:DefaultAssemblyName}"
-    i:ResxLocalizationProvider.DefaultDictionary="Main"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:i="http://imagin.tech/imagin/wpf"
+    i:LocalizeDictionary.DesignCulture="en" i:ResxLocalizationProvider.DefaultAssembly="{i:DefaultAssemblyName}" i:ResxLocalizationProvider.DefaultDictionary="Main"
     xmlns:local="clr-namespace:Imagin.Apps.Color"
+    xmlns:Core="clr-namespace:Imagin.Core;assembly=Imagin.Core"
     xmlns:Hardcodet="http://www.hardcodet.net/taskbar"
-    Height="{i:Options WindowHeight, Mode=TwoWay}"
-    i:XWindow.FooterVisibility="Collapsed"
-    i:XWindow.TitleIcon="{i:ProjectImage Logo.png}"
-    MinHeight="300"
-    MinWidth="600"
+    Height="{i:Options WindowHeight, Mode=TwoWay}" Width="{i:Options WindowWidth, Mode=TwoWay}"
+    i:XWindow.FooterVisibility="Collapsed" i:XWindow.TitleIcon="{i:ProjectImage Logo.png}" i:XWindow.TitleIconVisibility="Collapsed"
+    MinHeight="300" MinWidth="600"
     Title="{i:TranslateBinding Title}"
-    Width="{i:Options WindowWidth, Mode=TwoWay}"
     WindowState="{i:Options WindowState, Mode=TwoWay}">
     <i:XWindow.HeaderButtons>
         <i:WindowButtons>
@@ -33,7 +27,8 @@
     </i:XWindow.HeaderButtons>
     <i:XWindow.Menu>
         <Menu>
-            <MenuItem Header="{i:Loc Color}">
+            <MenuItem Header="{i:Loc Color}"
+                Icon="{i:InternalImage Image=Color}">
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
                         <MenuItem Header="{i:Loc New}"
@@ -98,7 +93,8 @@
                     </CompositeCollection>
                 </MenuItem.ItemsSource>
             </MenuItem>
-            <MenuItem Header="{i:Loc Colors}">
+            <MenuItem Header="{i:Loc Colors}"
+                Icon="{i:InternalImage Image=Colors}">
                 <MenuItem.Resources>
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Style.Triggers>
@@ -138,8 +134,11 @@
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
                         <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
-                            Command="{Binding NewColorCommand}"
+                            Command="{Binding ColorControl.ColorsPanel.AddToCommand}"
                             Icon="{i:InternalImage Image=Plus}"/>
+                        <MenuItem Tag="0" Header="New group..."
+                            Command="{Binding ColorControl.ColorsPanel.AddGroupCommand}"
+                            Icon="{i:InternalImage Image=FolderAdd}"/>
                         <Separator/>
                         <MenuItem Tag="0" Header="{i:Loc ExportAll, Suffix=...}"
                             Command="{i:Options ColorControlOptions.Colors.ExportAllCommand}"
@@ -152,7 +151,56 @@
                     </CompositeCollection>
                 </MenuItem.ItemsSource>
             </MenuItem>
-            <MenuItem Header="{i:Loc Models}" 
+            <MenuItem Header="{i:Loc Illuminants}"
+                Icon="{i:InternalImage Image=LightBulb}">
+                <MenuItem.Resources>
+                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Converter={x:Static i:IsConverter.Default}, ConverterParameter={x:Type Core:BaseNamable}}" Value="True">
+                                <Setter Property="Command" Value="{i:RemoteBinding OpenIlluminantCommand, RemoteSource=MainViewModel}"/>
+                                <Setter Property="CommandParameter" Value="{Binding Value}"/>
+                            </DataTrigger>
+                            <Trigger Property="Tag" Value="{x:Null}">
+                                <Setter Property="ItemTemplateSelector">
+                                    <Setter.Value>
+                                        <i:TypeTemplateSelector>
+                                            <i:TypeTemplateSelector.Default>
+                                                <HierarchicalDataTemplate ItemsSource="{Binding}">
+                                                    <TextBlock Text="{Binding Name}"/>
+                                                </HierarchicalDataTemplate>
+                                            </i:TypeTemplateSelector.Default>
+                                            <HierarchicalDataTemplate DataType="{x:Type Core:BaseNamable}">
+                                                <TextBlock Text="{Binding Name}"/>
+                                            </HierarchicalDataTemplate>
+                                        </i:TypeTemplateSelector>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </MenuItem.Resources>
+                <MenuItem.ItemsSource>
+                    <CompositeCollection>
+                        <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
+                            Command="{Binding ColorControl.IlluminantsPanel.AddToCommand}"
+                            Icon="{i:InternalImage Image=Plus}"/>
+                        <MenuItem Tag="0" Header="New group..."
+                            Command="{Binding ColorControl.IlluminantsPanel.AddGroupCommand}"
+                            Icon="{i:InternalImage Image=FolderAdd}"/>
+                        <Separator/>
+                        <MenuItem Tag="0" Header="{i:Loc ExportAll, Suffix=...}"
+                            Command="{i:Options ColorControlOptions.Illuminants.ExportAllCommand}"
+                            Icon="{i:InternalImage Image=ExportAll}"/>
+                        <MenuItem Tag="0" Header="{i:Loc Import, Suffix=...}"
+                            Command="{i:Options ColorControlOptions.Illuminants.ImportCommand}"
+                            Icon="{i:InternalImage Image=Import}"/>
+                        <Separator i:XSeparator.Header="{i:Loc Illuminants}"/>
+                        <CollectionContainer Collection="{i:Options ColorControlOptions.Illuminants}"/>
+                    </CompositeCollection>
+                </MenuItem.ItemsSource>
+            </MenuItem>
+            <MenuItem Header="{i:Loc Models}"
+                Icon="{i:InternalImage Image=XYZ}"
                 ItemsSource="{Binding Models}"
                 i:XItemsControl.GroupsItself="True"
                 i:XItemsControl.GroupStyle="{StaticResource {x:Static i:XItemsControl.MenuGroupStyleKey}}">
@@ -164,23 +212,28 @@
                     </Style>
                 </i:XItemsControl.GroupContainerStyle>
             </MenuItem>
-            <MenuItem Tag="0" Header="{i:Loc Profile}">
+            <MenuItem Header="{i:Loc Profiles}"
+                Icon="{i:InternalImage Image=Channels}">
                 <MenuItem.Resources>
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Style.Triggers>
-                            <Trigger Property="Tag" Value="{x:Null}">
+                            <DataTrigger Binding="{Binding Converter={x:Static i:IsConverter.Default}, ConverterParameter={x:Type Core:BaseNamable}}" Value="True">
                                 <Setter Property="Command" Value="{i:RemoteBinding OpenProfileCommand, RemoteSource=MainViewModel}"/>
                                 <Setter Property="CommandParameter" Value="{Binding Value}"/>
-                                <Setter Property="InputGestureText" Value="{Binding}"/>
-                                <Setter Property="i:XMenuItem.InputGestureTextTemplate">
+                            </DataTrigger>
+                            <Trigger Property="Tag" Value="{x:Null}">
+                                <Setter Property="ItemTemplateSelector">
                                     <Setter.Value>
-                                        <DataTemplate>
-                                            <i:ImageButton
-                                                Command="{i:RemoteBinding DeleteProfileCommand, RemoteSource=MainViewModel}"
-                                                CommandParameter="{Binding}"
-                                                Source="{i:InternalImage Image=Trash}"
-                                                ToolTip="{i:Loc Delete}"/>
-                                        </DataTemplate>
+                                        <i:TypeTemplateSelector>
+                                            <i:TypeTemplateSelector.Default>
+                                                <HierarchicalDataTemplate ItemsSource="{Binding}">
+                                                    <TextBlock Text="{Binding Name}"/>
+                                                </HierarchicalDataTemplate>
+                                            </i:TypeTemplateSelector.Default>
+                                            <HierarchicalDataTemplate DataType="{x:Type Core:BaseNamable}">
+                                                <TextBlock Text="{Binding Name}"/>
+                                            </HierarchicalDataTemplate>
+                                        </i:TypeTemplateSelector>
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
@@ -190,14 +243,17 @@
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
                         <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
-                            Command="{Binding NewProfileCommand}"
+                            Command="{Binding ColorControl.ProfilesPanel.AddToCommand}"
                             Icon="{i:InternalImage Image=Plus}"/>
+                        <MenuItem Tag="0" Header="New group..."
+                            Command="{Binding ColorControl.ProfilesPanel.AddGroupCommand}"
+                            Icon="{i:InternalImage Image=FolderAdd}"/>
                         <Separator/>
                         <MenuItem Tag="0" Header="{i:Loc ExportAll, Suffix=...}"
-                            Command="{i:Options ColorControlOptions.Colors.ExportAllCommand}"
+                            Command="{i:Options ColorControlOptions.Profiles.ExportAllCommand}"
                             Icon="{i:InternalImage Image=ExportAll}"/>
                         <MenuItem Tag="0" Header="{i:Loc Import, Suffix=...}"
-                            Command="{i:Options ColorControlOptions.Colors.ImportCommand}"
+                            Command="{i:Options ColorControlOptions.Profiles.ImportCommand}"
                             Icon="{i:InternalImage Image=Import}"/>
                         <Separator i:XSeparator.Header="{i:Loc Profiles}"/>
                         <CollectionContainer Collection="{i:Options ColorControlOptions.Profiles}"/>
@@ -205,6 +261,7 @@
                 </MenuItem.ItemsSource>
             </MenuItem>
             <MenuItem Header="{i:Loc Window}" 
+                Icon="{i:InternalImage Image=Open}"
                 ItemsSource="{i:RemoteBinding Panels, RemoteSource=MainViewModel}">
                 <MenuItem.ItemContainerStyle>
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">

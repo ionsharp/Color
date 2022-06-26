@@ -1,10 +1,8 @@
 ﻿using Imagin.Core;
 using Imagin.Core.Collections.Serialization;
-using Imagin.Core.Colors;
 using Imagin.Core.Controls;
 using Imagin.Core.Models;
 using System;
-using System.Collections.ObjectModel;
 
 namespace Imagin.Apps.Color
 {
@@ -21,7 +19,10 @@ namespace Imagin.Apps.Color
         IGroupWriter IColorControlOptions.Colors => ColorControlOptions.Colors;
 
         [Hidden]
-        IWriter IColorControlOptions.Profiles => ColorControlOptions.Profiles;
+        IGroupWriter IColorControlOptions.Illuminants => ColorControlOptions.Illuminants;
+
+        [Hidden]
+        IGroupWriter IColorControlOptions.Profiles => ColorControlOptions.Profiles;
 
         ColorControlOptions colorControlOptions = new();
         [Hidden]
