@@ -312,7 +312,7 @@
                 </ContextMenu>
             </Hardcodet:TaskbarIcon.ContextMenu>
         </Hardcodet:TaskbarIcon>
-        <i:ColorControl
+        <i:ColorControl x:Name="ColorControl"
             ActiveDocument="{Binding ActiveDocument, Mode=OneWayToSource}"
             Documents="{i:Options Documents}"
             i:XElement.Reference="{Binding}"

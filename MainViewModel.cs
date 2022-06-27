@@ -1,12 +1,12 @@
 ﻿using Imagin.Core;
-using Imagin.Core.Collections.ObjectModel;
 using Imagin.Core.Colors;
 using Imagin.Core.Controls;
 using Imagin.Core.Input;
-using Imagin.Core.Media;
+using Imagin.Core.Linq;
 using Imagin.Core.Models;
 using System;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -57,8 +57,6 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
     public MainViewModel() : base()
     {
         Documents.CollectionChanged += OnDocumentsChanged;
-
-        //...
 
         New<RCA>(); //New<RGB>(); //New<RGV>(); //New<RYB>();
         //New<CMY>();
@@ -122,7 +120,7 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     ICommand newCommand;
     public ICommand NewCommand 
-        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel?.Value ?? typeof(LCHabh), Get.Current<Options>().ColorControlOptions)));
+        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel?.Value, Get.Current<Options>().ColorControlOptions.Profiles)));
 
     ICommand openProfileCommand;
     public ICommand OpenProfileCommand 
