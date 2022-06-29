@@ -4,6 +4,7 @@
     xmlns:local="clr-namespace:Imagin.Apps.Color"
     xmlns:Core="clr-namespace:Imagin.Core;assembly=Imagin.Core"
     xmlns:Hardcodet="http://www.hardcodet.net/taskbar"
+    xmlns:Numerics="clr-namespace:Imagin.Core.Numerics;assembly=Imagin.Core"
     Height="{i:Options WindowHeight, Mode=TwoWay}" Width="{i:Options WindowWidth, Mode=TwoWay}"
     i:XWindow.FooterVisibility="Collapsed" i:XWindow.TitleIcon="{i:ProjectImage Logo.png}" i:XWindow.TitleIconVisibility="Collapsed"
     MinHeight="300" MinWidth="600"
@@ -98,10 +99,10 @@
                 <MenuItem.Resources>
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding Converter={x:Static i:IsConverter.Default}, ConverterParameter={x:Type i:StringColor}}" Value="True">
+                            <DataTrigger Binding="{Binding Converter={x:Static i:IsConverter.Default}, ConverterParameter={x:Type Numerics:ByteVector4}}" Value="True">
                                 <Setter Property="Command" Value="{i:RemoteBinding ColorCommand, RemoteSource=MainViewModel}"/>
-                                <Setter Property="CommandParameter" Value="{Binding Value}"/>
-                                <Setter Property="Icon" Value="{Binding Brush}"/>
+                                <Setter Property="CommandParameter" Value="{Binding Converter={x:Static i:ByteVector4ToColorConverter.Default}}"/>
+                                <Setter Property="Icon" Value="{Binding Converter={x:Static i:ByteVector4ToSolidColorBrushConverter.Default}}"/>
                                 <Setter Property="i:XMenuItem.IconTemplate">
                                     <Setter.Value>
                                         <DataTemplate>
@@ -121,8 +122,8 @@
                                                     <TextBlock Text="{Binding Name}"/>
                                                 </HierarchicalDataTemplate>
                                             </i:TypeTemplateSelector.Default>
-                                            <HierarchicalDataTemplate DataType="{x:Type i:StringColor}">
-                                                <TextBlock><Run Text="#"/><Run Text="{Binding Value, Converter={x:Static i:ColorToStringConverter.Default}}"/></TextBlock>
+                                            <HierarchicalDataTemplate DataType="{x:Type Numerics:ByteVector4}">
+                                                <TextBlock><Run Text="#"/><Run Text="{Binding ., Converter={x:Static i:ByteVector4ToStringConverter.Default}, Mode=OneWay}"/></TextBlock>
                                             </HierarchicalDataTemplate>
                                         </i:TypeTemplateSelector>
                                     </Setter.Value>
