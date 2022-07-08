@@ -135,7 +135,7 @@
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
                         <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
-                            Command="{Binding ColorControl.ColorsPanel.AddToCommand}"
+                            Command="{Binding ColorControl.ColorsPanel.AddCommand}"
                             Icon="{i:InternalImage Image=Plus}"/>
                         <MenuItem Tag="0" Header="New group..."
                             Command="{Binding ColorControl.ColorsPanel.AddGroupCommand}"
@@ -183,7 +183,7 @@
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
                         <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
-                            Command="{Binding ColorControl.IlluminantsPanel.AddToCommand}"
+                            Command="{Binding ColorControl.IlluminantsPanel.AddCommand}"
                             Icon="{i:InternalImage Image=Plus}"/>
                         <MenuItem Tag="0" Header="New group..."
                             Command="{Binding ColorControl.IlluminantsPanel.AddGroupCommand}"
@@ -244,7 +244,7 @@
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
                         <MenuItem Tag="0" Header="{i:Loc New, Suffix=...}"
-                            Command="{Binding ColorControl.ProfilesPanel.AddToCommand}"
+                            Command="{Binding ColorControl.ProfilesPanel.AddCommand}"
                             Icon="{i:InternalImage Image=Plus}"/>
                         <MenuItem Tag="0" Header="New group..."
                             Command="{Binding ColorControl.ProfilesPanel.AddGroupCommand}"
@@ -261,30 +261,59 @@
                     </CompositeCollection>
                 </MenuItem.ItemsSource>
             </MenuItem>
-            <MenuItem Header="{i:Loc Window}" 
-                Icon="{i:InternalImage Image=Open}"
-                ItemsSource="{i:RemoteBinding Panels, RemoteSource=MainViewModel}">
-                <MenuItem.ItemContainerStyle>
+            <MenuItem Tag="0" Header="{i:Loc Window}"
+                Icon="{i:InternalImage Image=Open}">
+                <MenuItem.Resources>
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
-                        <Setter Property="Icon" Value="{Binding Icon}"/>
-                        <Setter Property="StaysOpenOnClick" Value="True"/>
-                        <Setter Property="IsCheckable" Value="True"/>
-                        <Setter Property="IsChecked" Value="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    </Style>
-                </MenuItem.ItemContainerStyle>
-                <MenuItem.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock x:Name="TextBlock"/>
-                        <DataTemplate.Triggers>
+                        <Style.Triggers>
+                            <Trigger Property="Tag" Value="{x:Null}">
+                                <Setter Property="Header" Value="{Binding Title}"/>
+                                <Setter Property="Icon" Value="{Binding Icon}"/>
+                                <Setter Property="IsCheckable" Value="True"/>
+                                <Setter Property="IsChecked" Value="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Setter Property="StaysOpenOnClick" Value="True"/>
+                            </Trigger>
                             <DataTrigger Binding="{Binding TitleLocalized}" Value="True">
-                                <Setter TargetName="TextBlock" Property="Text" Value="{i:TranslateBinding Title}"/>
+                                <Setter Property="Header" Value="{i:TranslateBinding Title}"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding TitleLocalized}" Value="False">
-                                <Setter TargetName="TextBlock" Property="Text" Value="{Binding Title}"/>
-                            </DataTrigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </MenuItem.ItemTemplate>
+                        </Style.Triggers>
+                    </Style>
+                </MenuItem.Resources>
+                <MenuItem.ItemsSource>
+                    <CompositeCollection>
+                        <Separator i:XSeparator.Header="{i:Loc Layout}"/>
+                        <MenuItem Tag="0" Header="{i:True}" HorizontalContentAlignment="Stretch" i:XMenuItem.IconVisibility="Collapsed">
+                            <MenuItem.HeaderTemplate>
+                                <DataTemplate>
+                                    <ComboBox HorizontalAlignment="Stretch" SelectedItem="{i:Options ColorControlOptions.Layouts.Layout, Mode=TwoWay}">
+                                        <ComboBox.ItemsSource>
+                                            <CompositeCollection>
+                                                <i:ComboBoxSeparator Content="{i:Loc Default}"/>
+                                                <CollectionContainer Collection="{i:Options ColorControlOptions.Layouts.DefaultLayouts}"/>
+                                                <i:ComboBoxSeparator Content="{i:Loc Custom}" Visibility="{i:Options ColorControlOptions.Layouts.IsNotEmpty, Converter={x:Static i:BooleanToVisibilityConverter.Default}}"/>
+                                                <CollectionContainer Collection="{i:Options ColorControlOptions.Layouts}"/>
+                                            </CompositeCollection>
+                                        </ComboBox.ItemsSource>
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={x:Static i:FileNameConverter.Default}, ConverterParameter=0}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </DataTemplate>
+                            </MenuItem.HeaderTemplate>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem Tag="0" Header="{i:Loc Export, Suffix=...}"
+                            Command="{i:Options ColorControlOptions.Layouts.ExportCommand}"
+                            Icon="{i:InternalImage Image=Export}"/>
+                        <MenuItem Tag="0" Header="{i:Loc Import, Suffix=...}"
+                            Command="{i:Options ColorControlOptions.Layouts.ImportCommand}"
+                            Icon="{i:InternalImage Image=Import}"/>
+                        <Separator i:XSeparator.Header="{i:Loc Panels}"/>
+                        <CollectionContainer Collection="{i:RemoteBinding Panels, RemoteSource=MainViewModel}"/>
+                    </CompositeCollection>
+                </MenuItem.ItemsSource>
             </MenuItem>
         </Menu>
     </i:XWindow.Menu>

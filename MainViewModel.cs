@@ -2,11 +2,10 @@
 using Imagin.Core.Colors;
 using Imagin.Core.Controls;
 using Imagin.Core.Input;
-using Imagin.Core.Linq;
 using Imagin.Core.Models;
+using Imagin.Core.Numerics;
 using System;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -116,15 +115,19 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     ICommand colorCommand;
     public ICommand ColorCommand 
-        => colorCommand ??= new RelayCommand<System.Windows.Media.Color>(i => (ActiveDocument as ColorDocument).Color.ActualColor = i, i => (ActiveDocument as ColorDocument)?.Color != null);
+        => colorCommand ??= new RelayCommand<System.Windows.Media.Color>(i => ActiveDocument.Color.ActualColor = i, i => ActiveDocument?.Color != null);
 
     ICommand newCommand;
     public ICommand NewCommand 
         => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel?.Value, Get.Current<Options>().ColorControlOptions.Profiles)));
 
+    ICommand openIlluminantCommand;
+    public ICommand OpenIlluminantCommand
+        => openIlluminantCommand ??= new RelayCommand<Vector2>(i => ActiveDocument.Color.Profile = new WorkingProfile(ActiveDocument.Color.Profile.Primary, i, ActiveDocument.Color.Profile.Compress, ActiveDocument.Color.Profile.Adapt, ActiveDocument.Color.Profile.ViewingConditions), i => ActiveDocument != null);
+
     ICommand openProfileCommand;
-    public ICommand OpenProfileCommand 
-        => openProfileCommand ??= new RelayCommand<WorkingProfile>(i => { }, i => ActiveDocument != null);
+    public ICommand OpenProfileCommand
+        => openProfileCommand ??= new RelayCommand<WorkingProfile>(i => ActiveDocument.Color.Profile = i, i => ActiveDocument != null);
 
     #endregion
 }
