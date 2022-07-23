@@ -1,16 +1,22 @@
 ﻿using Imagin.Core;
+using Imagin.Core.Collections.ObjectModel;
 using Imagin.Core.Collections.Serialization;
+using Imagin.Core.Config;
 using Imagin.Core.Controls;
 using Imagin.Core.Models;
+using Imagin.Core.Reflection;
+using Imagin.Core.Storage;
 using System;
 using System.Collections;
+using System.Runtime.CompilerServices;
+using System.Windows;
 
 namespace Imagin.Apps.Color;
 
 [Serializable]
 public class Options : MainViewOptions, IColorControlOptions
 {
-    enum Category { Color, Documents, Window }
+    enum Category { Documents, Models, ToolTip, Window }
 
     #region Properties
 
@@ -57,20 +63,37 @@ public class Options : MainViewOptions, IColorControlOptions
         set => this.Change(ref documents, value);
     }
 
+    [NonSerialized]
+    PathCollection templates = null;
+    [Hidden]
+    public PathCollection Templates
+    {
+        get => templates;
+        set => this.Change(ref templates, value);
+    }
+    
     #endregion
 
     #region Color
 
     string colorToolTip = "RGB;CMYK";
-    [Category(Category.Color), DisplayName("Tool tip"), Tokens]
+    [Category(Category.ToolTip), DisplayName("Models"), Tokens]
     public string ColorToolTip
     {
         get => colorToolTip;
         set => this.Change(ref colorToolTip, value);
     }
 
+    bool colorToolTipNormalize = false;
+    [Category(Category.ToolTip), DisplayName("Models (Normalize)")]
+    public bool ColorToolTipNormalize
+    {
+        get => colorToolTipNormalize;
+        set => this.Change(ref colorToolTipNormalize, value);
+    }
+
     int colorToolTipPrecision = 2;
-    [Category(Category.Color), DisplayName("Tool tip (precision)"), Range(0, 6, 1), SliderUpDown]
+    [Category(Category.ToolTip), DisplayName("Models (Precision)"), Range(0, 6, 1), SliderUpDown]
     public int ColorToolTipPrecision
     {
         get => colorToolTipPrecision;
@@ -90,6 +113,60 @@ public class Options : MainViewOptions, IColorControlOptions
 
     [Hidden]
     IList IColorControlOptions.Documents => Documents;
+
+    #endregion
+
+    #region Models
+
+    System.ComponentModel.ListSortDirection modelGroupDirection = System.ComponentModel.ListSortDirection.Ascending;
+    [Category(Category.Models)]
+    [DisplayName("Group direction")]
+    public System.ComponentModel.ListSortDirection ModelGroupDirection
+    {
+        get => modelGroupDirection;
+        set => this.Change(ref modelGroupDirection, value);
+    }
+
+    [Hidden]
+    public string ModelGroupName => ModelGroupNames.Count > ModelGroupNameIndex && ModelGroupNameIndex >= 0 ? ModelGroupNames[ModelGroupNameIndex] : null;
+
+    int modelGroupNameIndex = 0;
+    [Category(Category.Models), SelectedIndex]
+    [DisplayName("Group name")]
+    [Trigger(nameof(MemberModel.ItemSource), nameof(ModelGroupNames))]
+    public virtual int ModelGroupNameIndex
+    {
+        get => modelGroupNameIndex;
+        set => this.Change(ref modelGroupNameIndex, value);
+    }
+
+    [Hidden]
+    public StringCollection ModelGroupNames { get; private set; } = new() { "Name", "Category" };
+
+    System.ComponentModel.ListSortDirection modelSortDirection = System.ComponentModel.ListSortDirection.Ascending;
+    [Category(Category.Models)]
+    [DisplayName("Sort direction")]
+    public System.ComponentModel.ListSortDirection ModelSortDirection
+    {
+        get => modelSortDirection;
+        set => this.Change(ref modelSortDirection, value);
+    }
+
+    [Hidden]
+    public string ModelSortName => ModelSortNames?.Count > ModelSortNameIndex && ModelSortNameIndex >= 0 ? (string)ModelSortNames[ModelSortNameIndex] : null;
+
+    int modelSortNameIndex = 0;
+    [Category(Category.Models), SelectedIndex]
+    [DisplayName("Sort name")]
+    [Trigger(nameof(MemberModel.ItemSource), nameof(ModelSortNames))]
+    public virtual int ModelSortNameIndex
+    {
+        get => modelSortNameIndex;
+        set => this.Change(ref modelSortNameIndex, value);
+    }
+
+    [Hidden]
+    public StringCollection ModelSortNames { get; private set; } = new() { "Name" };
 
     #endregion
 
@@ -121,7 +198,28 @@ public class Options : MainViewOptions, IColorControlOptions
         ColorControlOptions.Save();
     }
 
-    public void OnLoaded(ColorControl colorPicker) => ColorControlOptions?.OnLoaded(colorPicker);
+    public static readonly string TemplatesFolder = $@"{ApplicationProperties.GetFolderPath(DataFolders.Documents)}\{nameof(Color)}\Templates";
+
+    public void OnLoaded(ColorControl colorPicker)
+    {
+        Templates = new(TemplatesFolder, new Filter(ItemType.File, MainViewModel.FileExtension));
+        ColorControlOptions?.OnLoaded(colorPicker);
+    }
+
+    public override void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        base.OnPropertyChanged(propertyName);
+        switch (propertyName)
+        {
+            case nameof(ModelGroupNameIndex):
+                this.Changed(() => ModelGroupName);
+                break;
+
+            case nameof(ModelSortNameIndex):
+                this.Changed(() => ModelSortName);
+                break;
+        }
+    }
 
     #endregion
 }

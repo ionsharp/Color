@@ -2,8 +2,10 @@
 using Imagin.Core.Colors;
 using Imagin.Core.Controls;
 using Imagin.Core.Input;
+using Imagin.Core.Linq;
 using Imagin.Core.Models;
-using Imagin.Core.Numerics;
+using Imagin.Core.Serialization;
+using Imagin.Core.Storage;
 using System;
 using System.Collections.Specialized;
 using System.Windows;
@@ -15,6 +17,11 @@ namespace Imagin.Apps.Color;
 
 public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 {
+    public static readonly Type[] DefaultModels 
+        = new[] { typeof(HSB) /*typeof(RCA), typeof(RGB), typeof(RGV)*/ };
+
+    public const string FileExtension = "color";
+
     #region Properties
 
     public static readonly ReferenceKey<ColorControl> ColorControlReferenceKey = new();
@@ -35,7 +42,7 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     public DocumentCollection Documents => Get.Current<Options>().Documents;
 
-    ListCollectionView models = ColorControl.GetModels();
+    ListCollectionView models = ColorDocument.GetDefaultModels();
     public ListCollectionView Models
     {
         get => models;
@@ -55,16 +62,7 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     public MainViewModel() : base()
     {
-        Documents.CollectionChanged += OnDocumentsChanged;
-
-        New<RCA>(); //New<RGB>(); //New<RGV>(); //New<RYB>();
-        //New<CMY>();
-        //New<HSM>(); //New<HSB>(); //New<HSL>(); //New<HSP>();
-        //New<HPLuv>(); //New<HSLuv>();
-        //New<Lab>(); //New<Labh>(); //New<Labi>(); //New<Labj>(); 
-        //New<LCHxy>(); //New<LCHab>(); //New<LCHabh>(); //New<LCHabj>();
-        //New<Labk>(); //New<HSBk>(); //New<HSLk>(); //New<HWBk>();
-        //New<CMYK>(); //New<CMYW>(); //New<RGBK>(); //New<RGBW>();
+        Documents.CollectionChanged += OnDocumentsChanged; DefaultModels.ForEach(i => New(i));
     }
 
     #endregion
@@ -89,6 +87,28 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     void New(Type type) => NewCommand.Execute(type);
 
+    void Save(string folderPath)
+    {
+        if (StorageWindow.Show(out string path, "Save", StorageWindowModes.SaveFile, new[] { FileExtension }, folderPath))
+        {
+            if (BinarySerializer.Serialize(path, ActiveDocument))
+                ActiveDocument.Path = path;
+        }
+    }
+
+    void Save(Document input)
+    {
+        if (input is ColorDocument document)
+        {
+            if (!System.IO.File.Exists(document.Path))
+            {
+                Save(document.Path);
+                return;
+            }
+            BinarySerializer.Serialize(document.Path, document);
+        }
+    }
+
     void IFrameworkReference.SetReference(IFrameworkKey key, FrameworkElement element)
     {
         if (key == ColorControlReferenceKey)
@@ -105,6 +125,10 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     #region Commands
 
+    ICommand cloneCommand;
+    public ICommand CloneCommand
+        => cloneCommand ??= new RelayCommand(() => Documents.Add(ActiveDocument.Clone()), () => ActiveDocument != null);
+
     ICommand closeCommand;
     public ICommand CloseCommand 
         => closeCommand ??= new RelayCommand(() => Documents.Remove(ActiveDocument), () => ActiveDocument != null);
@@ -115,19 +139,57 @@ public class MainViewModel : MainViewModel<MainWindow>, IFrameworkReference
 
     ICommand colorCommand;
     public ICommand ColorCommand 
-        => colorCommand ??= new RelayCommand<System.Windows.Media.Color>(i => ActiveDocument.Color.ActualColor = i, i => ActiveDocument?.Color != null);
+        => colorCommand ??= new RelayCommand<System.Windows.Media.Color>(i => ActiveDocument.NewColor = i, i => ActiveDocument != null);
 
     ICommand newCommand;
-    public ICommand NewCommand 
-        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel?.Value, Get.Current<Options>().ColorControlOptions.Profiles)));
+    public ICommand NewCommand
+        => newCommand ??= new RelayCommand<Type>(i => Documents.Add(new ColorDocument(Colors.White, i ?? Get.Current<Options>().DefaultColorModel?.Value ?? ColorDocument.DefaultModel, Get.Current<Options>().ColorControlOptions.Profiles)));
 
-    ICommand openIlluminantCommand;
-    public ICommand OpenIlluminantCommand
-        => openIlluminantCommand ??= new RelayCommand<Vector2>(i => ActiveDocument.Color.Profile = new WorkingProfile(ActiveDocument.Color.Profile.Primary, i, ActiveDocument.Color.Profile.Compress, ActiveDocument.Color.Profile.Adapt, ActiveDocument.Color.Profile.ViewingConditions), i => ActiveDocument != null);
+    ICommand newFromCommand;
+    public ICommand NewFromCommand => newFromCommand ??= new RelayCommand<string>(i =>
+    {
+        if (BinarySerializer.Deserialize(i, out ColorDocument result))
+        {
+            result.Path = null;
+            Documents.Add(result);
+        }
+    }, 
+    i => System.IO.File.Exists(i));
 
-    ICommand openProfileCommand;
-    public ICommand OpenProfileCommand
-        => openProfileCommand ??= new RelayCommand<WorkingProfile>(i => ActiveDocument.Color.Profile = i, i => ActiveDocument != null);
+    ICommand openCommand;
+    public ICommand OpenCommand => openCommand ??= new RelayCommand(() =>
+    {
+        if (StorageWindow.Show(out string[] paths, "Open", StorageWindowModes.OpenFile, new[] { FileExtension }, ActiveDocument?.Path))
+        {
+            if (paths?.Length > 0)
+            {
+                foreach (var i in paths)
+                {
+                    if (BinarySerializer.Deserialize(i, out ColorDocument j))
+                        Documents.Add(j);
+                }
+            }
+        }
+    });
+
+    ICommand saveCommand;
+    public ICommand SaveCommand => saveCommand ??= new RelayCommand(() => Save(ActiveDocument), () => ActiveDocument != null);
+
+    ICommand saveAllCommand;
+    public ICommand SaveAllCommand => saveAllCommand ??= new RelayCommand(() => Documents.ForEach(i => Save(i)), () => Documents?.Count > 0);
+
+    ICommand saveTemplateCommand;
+    public ICommand SaveTemplateCommand => saveTemplateCommand ??= new RelayCommand(() =>
+    {
+        if (!System.IO.Directory.Exists(Options.TemplatesFolder))
+        {
+            if (!Try.Invoke(() => System.IO.Directory.CreateDirectory(Options.TemplatesFolder)))
+                return;
+        }
+
+        Save(Options.TemplatesFolder);
+    }, 
+    () => ActiveDocument != null);
 
     #endregion
 }
