@@ -8,7 +8,39 @@
 
         <Style x:Key="{x:Static i:BaseApplication.SplashWindowStyleKey}" TargetType="{x:Type i:SplashWindow}" BasedOn="{StaticResource {x:Type i:SplashWindow}}">
             <Setter Property="Accent" Value="#44000000"/>
-            <Setter Property="Image" Value="{i:ProjectImage Splash.png}"/>
+            <Setter Property="Delay" Value="1000"/>
+            <Setter Property="Image" Value="{i:Image Splash-Square.png}"/>
+            <Setter Property="ImageHeight" Value="300"/>
+            <Setter Property="ImageWidth" Value="512"/>
+            <Setter Property="ImageTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Rectangle x:Name="Image" Fill="White" Stretch="Fill">
+                            <Rectangle.Effect>
+                                <i:GradientOverlayEffect Angle="360" Gradient="{x:Static i:Gradient.Rainbow}" Type="Angle"/>
+                            </Rectangle.Effect>
+                            <Rectangle.Style>
+                                <Style TargetType="Rectangle">
+                                    <Style.Triggers>
+                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="(Rectangle.Effect).(i:GradientOverlayEffect.Angle)"
+                                                        From="360"
+                                                        To="0"
+                                                        RepeatBehavior="Forever"
+                                                        Duration="0:0:16"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Rectangle.Style>
+                        </Rectangle>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </i:SingleApplication.Resources>
 </i:SingleApplication>

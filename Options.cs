@@ -1,225 +1,123 @@
 ﻿using Imagin.Core;
 using Imagin.Core.Collections.ObjectModel;
-using Imagin.Core.Collections.Serialization;
 using Imagin.Core.Config;
 using Imagin.Core.Controls;
+using Imagin.Core.Media;
 using Imagin.Core.Models;
 using Imagin.Core.Reflection;
 using Imagin.Core.Storage;
 using System;
-using System.Collections;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 using System.Windows;
 
 namespace Imagin.Apps.Color;
 
-[Serializable]
-public class Options : MainViewOptions, IColorControlOptions
+[Serializable, View(MemberView.Tab, typeof(Tab))]
+public class Options : FileDockMainViewOptions
 {
-    enum Category { Documents, Models, ToolTip, Window }
+    enum Category { General, Models, ToolTip }
 
-    #region Properties
+    enum Tab { Color }
 
-    #region Other
+    #region General
 
-    [Hidden]
-    IGroupWriter IColorControlOptions.Colors 
-        => ColorControlOptions.Colors;
-
-    [Hidden]
-    IGroupWriter IColorControlOptions.Illuminants 
-        => ColorControlOptions.Illuminants;
-
-    [Hidden]
-    IGroupWriter IColorControlOptions.Matrices 
-        => ColorControlOptions.Matrices;
-
-    [Hidden]
-    IGroupWriter IColorControlOptions.Profiles
-        => ColorControlOptions.Profiles;
-
-    ColorControlOptions colorControlOptions = new();
-    [Hidden]
-    public ColorControlOptions ColorControlOptions
-    {
-        get => colorControlOptions;
-        set => this.Change(ref colorControlOptions, value);
-    }
-
-    [NonSerialized]
-    NamableCategory<Type> defaultColorModel = null;
-    [Hidden]
-    public NamableCategory<Type> DefaultColorModel
-    {
-        get => defaultColorModel;
-        set => this.Change(ref defaultColorModel, value);
-    }
-
-    DocumentCollection documents = new();
-    [Hidden]
-    public DocumentCollection Documents
-    {
-        get => documents;
-        set => this.Change(ref documents, value);
-    }
-
-    [NonSerialized]
-    PathCollection templates = null;
-    [Hidden]
-    public PathCollection Templates
-    {
-        get => templates;
-        set => this.Change(ref templates, value);
-    }
-    
-    #endregion
-
-    #region Color
-
-    string colorToolTip = "RGB;CMYK";
-    [Category(Category.ToolTip), DisplayName("Models"), Tokens]
-    public string ColorToolTip
-    {
-        get => colorToolTip;
-        set => this.Change(ref colorToolTip, value);
-    }
-
-    bool colorToolTipNormalize = false;
-    [Category(Category.ToolTip), DisplayName("Models (Normalize)")]
-    public bool ColorToolTipNormalize
-    {
-        get => colorToolTipNormalize;
-        set => this.Change(ref colorToolTipNormalize, value);
-    }
-
-    int colorToolTipPrecision = 2;
-    [Category(Category.ToolTip), DisplayName("Models (Precision)"), Range(0, 6, 1), SliderUpDown]
-    public int ColorToolTipPrecision
-    {
-        get => colorToolTipPrecision;
-        set => this.Change(ref colorToolTipPrecision, value);
-    }
-
-    #endregion
-
-    #region Documents
-
-    [Category(Category.Documents)]
-    [DisplayName("Auto save")]
-    public bool AutoSaveDocuments => ColorControlOptions.AutoSaveDocuments;
-
-    [Hidden]
-    bool IColorControlOptions.RememberDocuments => true;
-
-    [Hidden]
-    IList IColorControlOptions.Documents => Documents;
+    [Category(Category.General), Editable, Horizontal, HideName, Tab(Tab.Color)]
+    public ColorViewOptions ColorViewOptions { get => Get<ColorViewOptions>(null, false); set => Set(value, false); }
 
     #endregion
 
     #region Models
 
-    System.ComponentModel.ListSortDirection modelGroupDirection = System.ComponentModel.ListSortDirection.Ascending;
-    [Category(Category.Models)]
-    [DisplayName("Group direction")]
-    public System.ComponentModel.ListSortDirection ModelGroupDirection
-    {
-        get => modelGroupDirection;
-        set => this.Change(ref modelGroupDirection, value);
-    }
+    [Hide]
+    public NormalColorViewModel DefaultColorModel { get => Get<NormalColorViewModel>(null); set => Set(value); }
 
-    [Hidden]
+    [Category(Category.Models)]
+    [Name("Group direction"), Tab(Tab.Color)]
+    public System.ComponentModel.ListSortDirection ModelGroupDirection { get => Get(System.ComponentModel.ListSortDirection.Ascending); set => Set(value); }
+
+    [Hide]
     public string ModelGroupName => ModelGroupNames.Count > ModelGroupNameIndex && ModelGroupNameIndex >= 0 ? ModelGroupNames[ModelGroupNameIndex] : null;
 
-    int modelGroupNameIndex = 0;
-    [Category(Category.Models), SelectedIndex]
-    [DisplayName("Group name")]
-    [Trigger(nameof(MemberModel.ItemSource), nameof(ModelGroupNames))]
-    public virtual int ModelGroupNameIndex
-    {
-        get => modelGroupNameIndex;
-        set => this.Change(ref modelGroupNameIndex, value);
-    }
+    [Category(Category.Models), Int32Style(Int32Style.Index, nameof(ModelGroupNames))]
+    [Name("Group name"), Tab(Tab.Color)]
+    public virtual int ModelGroupNameIndex { get => Get(0); set => Set(value); }
 
-    [Hidden]
-    public StringCollection ModelGroupNames { get; private set; } = new() { "Name", "Category" };
+    [Hide]
+    public StringCollection ModelGroupNames { get; private set; } = new() { nameof(NormalColorViewModel.Category), nameof(NormalColorViewModel.FirstLetter) };
 
-    System.ComponentModel.ListSortDirection modelSortDirection = System.ComponentModel.ListSortDirection.Ascending;
     [Category(Category.Models)]
-    [DisplayName("Sort direction")]
-    public System.ComponentModel.ListSortDirection ModelSortDirection
-    {
-        get => modelSortDirection;
-        set => this.Change(ref modelSortDirection, value);
-    }
+    [Name("Sort direction"), Tab(Tab.Color)]
+    public System.ComponentModel.ListSortDirection ModelSortDirection { get => Get(System.ComponentModel.ListSortDirection.Ascending); set => Set(value); }
 
-    [Hidden]
+    [Hide]
     public string ModelSortName => ModelSortNames?.Count > ModelSortNameIndex && ModelSortNameIndex >= 0 ? (string)ModelSortNames[ModelSortNameIndex] : null;
 
-    int modelSortNameIndex = 0;
-    [Category(Category.Models), SelectedIndex]
-    [DisplayName("Sort name")]
-    [Trigger(nameof(MemberModel.ItemSource), nameof(ModelSortNames))]
-    public virtual int ModelSortNameIndex
-    {
-        get => modelSortNameIndex;
-        set => this.Change(ref modelSortNameIndex, value);
-    }
+    [Category(Category.Models), Int32Style(Int32Style.Index, nameof(ModelSortNames))]
+    [Name("Sort name"), Tab(Tab.Color)]
+    public virtual int ModelSortNameIndex { get => Get(1); set => Set(value); }
 
-    [Hidden]
-    public StringCollection ModelSortNames { get; private set; } = new() { "Name" };
+    [Hide]
+    public StringCollection ModelSortNames { get; private set; } = new() { nameof(NormalColorViewModel.Category), nameof(NormalColorViewModel.Name) };
 
     #endregion
 
-    #region Window
+    #region Templates
 
-    [Category(Category.Window)]
-    [DisplayName("Auto save")]
-    public bool AutoSaveLayout => ColorControlOptions.AutoSaveLayout;
-
-    [Category(Category.Window)]
-    [DisplayName("Layout")]
-    public Layouts Layouts => ColorControlOptions.Layouts;
-
-    [Category(Category.Window)]
-    public PanelCollection Panels => ColorControlOptions.Panels;
-
-    [Hidden]
-    IList IColorControlOptions.Panels => Panels;
+    [Hide]
+    public PathCollection Templates { get => Get<PathCollection>(null, false); set => Set(value, false); }
 
     #endregion
 
+    #region ToolTip
+
+    [Category(Category.ToolTip), Name("Models"), Tab(Tab.Color), StringStyle(StringStyle.Tokens)]
+    public string ColorToolTip { get => Get("RGB;CMYK"); set => Set(value); }
+
+    [Category(Category.ToolTip), Name("Models (Normalize)"), Tab(Tab.Color)]
+    public bool ColorToolTipNormalize { get => Get(false); set => Set(value); }
+
+    [Category(Category.ToolTip), Name("Models (Precision)"), Range(0, 6, 1, Style = RangeStyle.Both), Tab(Tab.Color)]
+    public int ColorToolTipPrecision { get => Get(2); set => Set(value); }
+
     #endregion
+
+    ///
 
     #region Methods
 
-    protected override void OnSaving()
+    protected override void OnLoaded()
     {
-        base.OnSaving();
-        ColorControlOptions.Save();
+        var defaultOptions = new ColorViewOptions();
+        defaultOptions.Load(out ColorViewOptions existingOptions);
+        ColorViewOptions = existingOptions ?? defaultOptions;
+
+        base.OnLoaded();
+
+        Templates = new($@"{Current.Get<BaseApplication>().DataFolderPath}\Templates", new Filter(ItemType.File, "color"));
+        Templates.Subscribe();
+        _ = Templates.RefreshAsync();
     }
 
-    public static readonly string TemplatesFolder = $@"{ApplicationProperties.GetFolderPath(DataFolders.Documents)}\{nameof(Color)}\Templates";
+    ///
 
-    public void OnLoaded(ColorControl colorPicker)
+    public override void OnPropertyChanged(PropertyEventArgs e)
     {
-        Templates = new(TemplatesFolder, new Filter(ItemType.File, MainViewModel.FileExtension));
-        ColorControlOptions?.OnLoaded(colorPicker);
-    }
-
-    public override void OnPropertyChanged([CallerMemberName] string propertyName = "")
-    {
-        base.OnPropertyChanged(propertyName);
-        switch (propertyName)
+        base.OnPropertyChanged(e);
+        switch (e.PropertyName)
         {
             case nameof(ModelGroupNameIndex):
-                this.Changed(() => ModelGroupName);
+                Update(() => ModelGroupName);
                 break;
 
             case nameof(ModelSortNameIndex):
-                this.Changed(() => ModelSortName);
+                Update(() => ModelSortName);
                 break;
         }
     }
+
+    public override int GetDefaultLayout() => ColorViewOptions?.GetDefaultLayout() ?? 0;
+
+    public override IEnumerable<Uri> GetDefaultLayouts() => ColorViewOptions?.GetDefaultLayouts();
 
     #endregion
 }
